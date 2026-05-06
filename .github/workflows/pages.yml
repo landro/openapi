@@ -29,6 +29,24 @@ jobs:
         with:
           enablement: true
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Build API docs with Redocly CLI
+        run: |
+          set -euo pipefail
+          for spec in apis/*/*.yaml; do
+            out="docs/${spec#apis/}"
+            out="${out%.yaml}.html"
+            mkdir -p "$(dirname "$out")"
+            echo "Generating $out from $spec"
+            npx --yes @redocly/cli@2.30.3 build-docs "$spec" \
+              --output "$out" \
+              --template template.hbs
+          done
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
